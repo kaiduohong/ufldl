@@ -53,27 +53,58 @@ Y = sigmoid(Z2);
 
 %compute delta
 cost_term = norm(data - Y,'fro')^2 / (2 * m) ;
-weight_decay = lambda / 2 * sum(sum(W1 .^2) + sum(W2.^2) );
-p_real=sum(A2,2)./ m;
+weight_decay = lambda / 2 * (sum(sum(W1 .^2)) + sum(sum(W2.^2)) );
+rhoi = sum(A2,2)./m;
+rho = repmat(sparsityParam,hiddenSize,1);
+sparsity=beta.*sum(rho .* log(rho ./ rhoi)+(1 - rho).*log((1 - rho)./(1 - rhoi)));
+cost=cost_term + weight_decay + sparsity;
+
+rhoi = repmat(sum(A2 ,2) ./ m,1,m);
+rho = repmat(rho , 1 , m);
+
+sparsity_penalty = beta .* ( - (rho ./ rhoi) + ( (1 - rho) ./ (1 - rhoi) ) );
+delta3 = (Y - data) .* Y .* (1 - Y);
+
+
+delta2 = (W2' * delta3 + sparsity_penalty) .* A2 .* (1 - A2);
+%compute gradient
+
+W1grad = 1/m * delta2 * data' + lambda .* W1;
+W2grad = 1/m * delta3 * A2' + lambda .* W2;
+b1grad = 1/m * sum(delta2,2);
+b2grad = 1/m * sum(delta3,2);
+
+
+
+%%
+%{
+%1.forward propagation
+data_size=size(data);
+active_value2=repmat(b1,1,data_size(2));
+active_value3=repmat(b2,1,data_size(2));
+active_value2=sigmoid(W1*data+active_value2);
+active_value3=sigmoid(W2*active_value2+active_value3);
+%2.computing error term and cost
+ave_square=sum(sum((active_value3-data).^2)./2)/data_size(2);
+weight_decay=lambda/2*(sum(sum(W1.^2))+sum(sum(W2.^2)));
+
+p_real=sum(active_value2,2)./data_size(2);
 p_para=repmat(sparsityParam,hiddenSize,1);
 sparsity=beta.*sum(p_para.*log(p_para./p_real)+(1-p_para).*log((1-p_para)./(1-p_real)));
 cost=ave_square+weight_decay+sparsity;
 
-rhoi = repmat(sum(A2 ,2) ./ m,1,data_size(2));
-rho = repmat(rho , hiddenSize,data_size(2));
-sparsity_penalty=beta.*( - (rho ./ rhoi) + ( (1 - rho) ./ (1 - rhoi) ) );
-delta3 = (Y - X) .* Y .* (1 - Y);
-delta2 = (W' * delta2 + sparsity_penalty) .* A2 .* (1 - A2);
-%compute gradient
-
-W1grad = 1/m * delta2 * data' + lambda .* W1;
-W2grad = 1/m * delta3 * A2 + lambda .* W2;
-b1grad = 1/m * sum(data2,2);
-b2grad = 1/m * sum(data1,2);
-
-
-
-
+delta3=(active_value3-data).*(active_value3).*(1-active_value3);
+average_sparsity=repmat(sum(active_value2,2)./data_size(2),1,data_size(2));
+default_sparsity=repmat(sparsityParam,hiddenSize,data_size(2));
+sparsity_penalty=beta.*(-(default_sparsity./average_sparsity)+((1-default_sparsity)./(1-average_sparsity)));
+delta2=(W2'*delta3+sparsity_penalty).*((active_value2).*(1-active_value2));
+%3.backword propagation
+W2grad=delta3*active_value2'./data_size(2)+lambda.*W2;
+W1grad=delta2*data'./data_size(2)+lambda.*W1;
+b2grad=sum(delta3,2)./data_size(2);
+b1grad=sum(delta2,2)./data_size(2);
+%}
+%%
 %-------------------------------------------------------------------
 % After computing the cost and gradient, we will convert the gradients back
 % to a vector format (suitable for minFunc).  Specifically, we will unroll
@@ -93,3 +124,7 @@ function sigm = sigmoid(x)
     sigm = 1 ./ (1 + exp(-x));
 end
 
+function res = kldiverge(rhoi,rho)
+    res = rho .* log(rho ./ rhoi)+(1 - rho).*log((1 - rho)./(1 - rhoi));
+    
+end
