@@ -109,7 +109,7 @@ b1grad=sum(delta2,2)./data_size(2);
 % After computing the cost and gradient, we will convert the gradients back
 % to a vector format (suitable for minFunc).  Specifically, we will unroll
 % your gradient matrices into a vector.
-
+size(W2grad)
 grad = [W1grad(:) ; W2grad(:) ; b1grad(:) ; b2grad(:)];
 
 end
