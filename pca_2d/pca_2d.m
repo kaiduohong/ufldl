@@ -20,7 +20,11 @@ title('Raw data');
 
 % -------------------- YOUR CODE HERE -------------------- 
 u = zeros(size(x, 1)); % You need to compute this
-
+convariance = x * x' / size(x,2);
+[u,s,v] = svd(convariance);%
+s = diag(s);
+u = u(:,1:size(s,1));
+v = v(:,1:size(s,1));
 
 % -------------------------------------------------------- 
 hold on
@@ -36,7 +40,7 @@ hold off
 
 % -------------------- YOUR CODE HERE -------------------- 
 xRot = zeros(size(x)); % You need to compute this
-
+xRot = u' * x;
 
 % -------------------------------------------------------- 
 
@@ -54,9 +58,10 @@ title('xRot');
 
 % -------------------- YOUR CODE HERE -------------------- 
 k = 1; % Use k = 1 and project the data onto the first eigenbasis
+
 xHat = zeros(size(x)); % You need to compute this
 
-
+xHat = u(:,1:k) * (u(:,1:k)' * x);
 
 % -------------------------------------------------------- 
 figure(3);
@@ -71,10 +76,10 @@ title('xHat');
 epsilon = 1e-5;
 % -------------------- YOUR CODE HERE -------------------- 
 xPCAWhite = zeros(size(x)); % You need to compute this
+size(1./ sqrt((s + epsilon)))
+xPCAWhite = bsxfun(@times, xRot,1./ sqrt((s + epsilon)));
 
-
-
-
+%xZCAWhite=u * diag(1./sqrt(s + epsilon)) * u' * x;
 % -------------------------------------------------------- 
 figure(4);
 scatter(xPCAWhite(1, :), xPCAWhite(2, :));
@@ -86,7 +91,7 @@ title('xPCAWhite');
 
 % -------------------- YOUR CODE HERE -------------------- 
 xZCAWhite = zeros(size(x)); % You need to compute this
-
+xZCAWhite = u * xPCAWhite ;
 
 % -------------------------------------------------------- 
 figure(5);
