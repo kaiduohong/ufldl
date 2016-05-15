@@ -75,7 +75,6 @@ options.display = 'on';
 % -------------------------------------------------------------------------
 
 
-
 %%======================================================================
 %% STEP 2: Train the second sparse autoencoder
 %  This trains the second sparse autoencoder on the first autoencoder
@@ -183,8 +182,8 @@ stackedAETheta = [ saeSoftmaxOptTheta ; stackparams ];
 
 % Get labelled test images
 % Note that we apply the same kind of preprocessing as the training set
-testData = loadMNISTImages('mnist/t10k-images-idx3-ubyte');
-testLabels = loadMNISTLabels('mnist/t10k-labels-idx1-ubyte');
+testData = loadMNISTImages('t10k-images.idx3-ubyte');
+testLabels = loadMNISTLabels('t10k-labels.idx1-ubyte');
 
 testLabels(testLabels == 0) = 10; % Remap 0 to 10
 
