@@ -128,11 +128,11 @@ options.display = 'on';
 % Save the learned features and the preprocessing matrices for use in 
 % the later exercise on convolution and pooling
 fprintf('Saving learned features and preprocessing matrices...\n');                          
-save('STL10Features.mat', 'optTheta', 'ZCAWhite', 'meanPatch');
+save('../data/STL10Features.mat', 'optTheta', 'ZCAWhite', 'meanPatch');
 fprintf('Saved\n');
 
 %% STEP 2d: Visualize learned features
-
+size(W)
 W = reshape(optTheta(1:visibleSize * hiddenSize), hiddenSize, visibleSize);
 b = optTheta(2*hiddenSize*visibleSize+1:2*hiddenSize*visibleSize+hiddenSize);
-displayColorNetwork( (W*ZCAWhite)');
+displayColorNetwork( (W*ZCAWhite)');  %为什么要这样做（对原数据进行白化）

@@ -41,7 +41,7 @@ poolDim = 19;          % dimension of pooling region
 optTheta =  zeros(2*hiddenSize*visibleSize+hiddenSize+visibleSize, 1);
 ZCAWhite =  zeros(visibleSize, visibleSize);
 meanPatch = zeros(visibleSize, 1);
-load STL10Features.mat;
+load STL10Features.mat; %load 已经通过线性解码器编码的特征
 
 % --------------------------------------------------------------------
 
@@ -84,13 +84,13 @@ for i = 1:1000
     imageRow = randi([1, imageDim - patchDim + 1]);
     imageCol = randi([1, imageDim - patchDim + 1]);    
    
-    patch = convImages(imageRow:imageRow + patchDim - 1, imageCol:imageCol + patchDim - 1, :, imageNum);
-    patch = patch(:);            
-    patch = patch - meanPatch;
-    patch = ZCAWhite * patch;
+    patch = convImages(imageRow:imageRow + patchDim - 1, imageCol:imageCol + patchDim - 1, :, imageNum); %在某张图片中取一块出来（三通道）
+    patch = patch(:);  %按通道排列
+    patch = patch - meanPatch;  
+    patch = ZCAWhite * patch; %白化
     
     features = feedForwardAutoencoder(optTheta, hiddenSize, visibleSize, patch); 
-
+    %测试卷积结果
     if abs(features(featureNum, 1) - convolvedFeatures(featureNum, imageNum, imageRow, imageCol)) > 1e-9
         fprintf('Convolved feature does not match activation from autoencoder\n');
         fprintf('Feature Number    : %d\n', featureNum);
@@ -102,7 +102,7 @@ for i = 1:1000
         error('Convolved feature does not match activation from autoencoder');
     end 
 end
-
+input('pause');
 disp('Congratulations! Your convolution code passed the test.');
 
 %% STEP 2c: Implement pooling

@@ -16,6 +16,7 @@ numFeatures = size(convolvedFeatures, 1);
 convolvedDim = size(convolvedFeatures, 3);
 
 pooledFeatures = zeros(numFeatures, numImages, floor(convolvedDim / poolDim), floor(convolvedDim / poolDim));
+%不整除的话，边界那些丢掉？？
 
 % -------------------- YOUR CODE HERE --------------------
 % Instructions:
@@ -27,17 +28,18 @@ pooledFeatures = zeros(numFeatures, numImages, floor(convolvedDim / poolDim), fl
 %   value of the featureNum feature for the imageNum image pooled over the
 %   corresponding (poolRow, poolCol) pooling region 
 %   (see http://ufldl/wiki/index.php/Pooling )
-%   
+%    
 %   Use mean pooling here.
+% mean pooling ---------
 resultDim = floor(convolvedDim / poolDim);
-for imageNum = 1:numImages
-    for featureNum = 1:numFeatures
+for imageNum = 1 : numImages
+    for featureNum = 1 : numFeatures
         for poolRow = 1:resultDim
-            offsetRow = 1+(poolRow-1)*poolDim;
-            for poolCol = 1:resultDim
-                offsetCol = 1+(poolCol-1)*poolDim;
-                patch = convolvedFeatures(featureNum,imageNum,offsetRow:offsetRow+poolDim-1,...
-                    offsetCol:offsetCol+poolDim-1);
+            offsetRow = 1 + (poolRow - 1) * poolDim;
+            for poolCol = 1 : resultDim
+                offsetCol = 1 + (poolCol - 1) * poolDim;
+                patch = convolvedFeatures(featureNum, imageNum, offsetRow : offsetRow + poolDim - 1,...
+                    offsetCol : offsetCol+poolDim - 1);
                 pooledFeatures(featureNum,imageNum,poolRow,poolCol) = mean(patch(:));
             end
         end

@@ -1,7 +1,8 @@
 function convolvedFeatures = cnnConvolve(patchDim, numFeatures, images, W, b, ZCAWhite, meanPatch)
+%实际上就是局部提取特征的过程
 %cnnConvolve Returns the convolution of the features given by W and b with
 %the given images
-%
+% 
 % Parameters:
 %  patchDim - patch (feature) dimension
 %  numFeatures - number of features
@@ -16,7 +17,7 @@ function convolvedFeatures = cnnConvolve(patchDim, numFeatures, images, W, b, ZC
 %                      convolvedFeatures(featureNum, imageNum, imageRow, imageCol)
 
 numImages = size(images, 4);
-imageDim = size(images, 1);
+imageDim = size(images, 1);   %图片是正方形的
 imageChannels = size(images, 3);
 
 
@@ -46,19 +47,19 @@ b_mean = b - WT * meanPatch;
 % --------------------------------------------------------
 
 convolvedFeatures = zeros(numFeatures, numImages, imageDim - patchDim + 1, imageDim - patchDim + 1);
-for imageNum = 1:numImages
-  for featureNum = 1:numFeatures
+for imageNum = 1:numImages  %遍历图片
+  for featureNum = 1:numFeatures  %隐藏层大小
 
     % convolution of image with feature matrix for each channel
     convolvedImage = zeros(imageDim - patchDim + 1, imageDim - patchDim + 1);
-    for channel = 1:3
+    for channel = 1:3  %三通道
 
       % Obtain the feature (patchDim x patchDim) needed during the convolution
       % ---- YOUR CODE HERE ----
-      feature = zeros(8,8); % You should replace this
-      patchSize = 64;
-      offset = (channel - 1)*patchSize;
-      feature = reshape(WT(featureNum, offset + 1 : offset+patchSize), 8, 8);
+      feature = zeros(patchDim, patchDim); % You should replace this
+      patchSize = patchDim * patchDim;
+      offset = (channel - 1) * patchSize;
+      feature = reshape(WT(featureNum, offset + 1 : offset + patchSize), patchDim, patchDim);
       
       
       % ------------------------
@@ -75,7 +76,7 @@ for imageNum = 1:numImages
       % ---- YOUR CODE HERE ----
 
       convolvedoneChannel = conv2(im, feature, 'valid');
-      convolvedImage = convolvedImage + convolvedoneChannel;      
+      convolvedImage = convolvedImage + convolvedoneChannel;    %三个通道加在一起，因为Wx + b本来就是加一起的，本来的是一列，现在分成三个通道分别卷积
        % ------------------------
  
     end
@@ -85,7 +86,7 @@ for imageNum = 1:numImages
     % ---- YOUR CODE HERE ----
 
     
-     convolvedImage = sigmoid(convolvedImage+b_mean(featureNum));
+     convolvedImage = sigmoid(convolvedImage + b_mean(featureNum));
     
     % ------------------------
     
