@@ -15,7 +15,7 @@
 imageChannels = 3;     % number of channels (rgb, so 3)
 
 patchDim   = 8;          % patch dimension
-numPatches = 100000;   % number of patches
+numPatches = 100000;   % number of patches 
  
 visibleSize = patchDim * patchDim * imageChannels;  % number of input units 
 outputSize  = visibleSize;   % number of output units
